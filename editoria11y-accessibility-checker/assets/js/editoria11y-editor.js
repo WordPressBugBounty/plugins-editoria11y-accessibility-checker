@@ -219,6 +219,9 @@ if (!ed11yInit.varDiv) {
       TABLES_INVALID_HEADERS_REF: tableExempt,
       TABLES_SEMANTIC_HEADING: tableInnerExempt,
       TABLES_EMPTY_HEADING: tableInnerExempt,
+	  LABEL_IN_NAME: '.has-visible-prompt *',
+	  CONTRAST_ERROR: '.has-visible-prompt *',
+	  LABELS_MISSING_LABEL: '[contenteditable]',
     };
     ed11yInit.options.ignoreContentOutsideRoots = true;
     ed11yInit.options['ignoreAriaOnElements'] = 'h1,h2,h3,h4,h5,h6,.wp-element-button,.block-editor-rich-text__editable,.wp-block-table';
@@ -574,7 +577,6 @@ if (!ed11yInit.varDiv) {
     // placeholder so the `:not(...)` selector is still valid CSS.
     const ignoreSel = ed11yInit.options['containerIgnore'] || ed11yInit.options['ignoreElements'] || ':not(*)';
     const iframes = document.querySelectorAll(`.mce-edit-area iframe:not(${ignoreSel})`);
-
     let readyCount = 0;
     const iframesReady = async function () {
       const ready = Array.from(iframes).every((frame) => typeof frame.contentWindow?.document === 'object');
@@ -691,9 +693,13 @@ if (!ed11yInit.varDiv) {
       ed11yInit.editorType = 'block';
       ed11yInit.ed11yCanSync = !window.location.href.includes('-new.php');
       ed11yInit.ed11yBlockOuterInit();
-    } else if (document.querySelector('.mce-edit-area iframe') && window.innerWidth > 600) {
+    } else if (
+      // Classic post content using TinyMCE — not plugin fields (e.g. ACF Rich Text Editor) on the same screen.
+	  // Todo: allow for running on both at once.
+      document.querySelector('#wp-content-wrap .mce-edit-area iframe, #content_ifr') &&
+      window.innerWidth > 600
+    ) {
       ed11yInit.editorType = 'mce';
-      console.log('classic editor detected');
       ed11yInit.ed11yCanSync = !window.location.href.includes('-new.php');
       ed11yInit.ed11yOuterClassicInit();
     } else if (ed11yInit.ed11yReadyCount < 60) {
